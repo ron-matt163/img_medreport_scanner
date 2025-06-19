@@ -4,3 +4,12 @@
 # from .celery import app as celery_app
 
 # __all__ = ('celery_app',)
+
+# Initialize OCR engines during Django startup
+try:
+    from . import ocr_engines
+    # Initialize PaddleOCR during service startup
+    ocr_engines.initialize_paddle_ocr()
+except ImportError as e:
+    import logging
+    logging.warning("Failed to import OCR engines: %s", str(e))

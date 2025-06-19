@@ -20,6 +20,8 @@ services:
       - db
       - redis
     restart: unless-stopped
+    mem_limit: 4g
+    mem_reservation: 2g
 
   db:
     image: postgres:15
@@ -53,6 +55,8 @@ services:
       - db
       - redis
     restart: unless-stopped
+    mem_limit: 4g
+    mem_reservation: 2g
 
 volumes:
   postgres_data:

@@ -1,6 +1,6 @@
 # Medical Report Scanner
 
-A Django-based application for scanning and processing medical reports using computer vision and AI.
+A Django-based application for scanning and processing medical reports using OCR (Optical Character Recognition) with support for multiple OCR engines.
 
 ## Features
 
@@ -39,8 +39,7 @@ docker-compose exec web python manage.py createsuperuser
 ```
 
 4. Access the application:
-   - Web application: http://localhost:8000
-   - Admin interface: http://localhost:8000/admin
+   - OCR API: http://localhost:8000/ocr/
 
 ### Development Setup
 
@@ -49,6 +48,63 @@ For development with live code reloading:
 ```bash
 docker-compose -f docker-compose.dev.yml up --build
 ```
+
+## API Usage
+
+### OCR Endpoint
+
+**POST** `/ocr/`
+
+Extract text from medical report images using OCR.
+
+#### Request
+
+- **Content-Type**: `multipart/form-data`
+- **Parameters**:
+  - `image` (required): Image file (JPEG, PNG, TIFF, etc.)
+  - `model` (optional): OCR engine to use (`Tesseract` or `PaddleOCR`). Defaults to `Tesseract`.
+
+#### Example Request
+
+```bash
+curl -X POST http://localhost:8000/ocr/ \
+  -F "image=@medical_report.jpg" \
+  -F "model=Tesseract"
+```
+
+#### Response
+
+```json
+{
+  "text": "Extracted text from the image...",
+  "average_confidence": 87.5
+}
+```
+
+#### Error Response
+
+```json
+{
+  "error": "Error message",
+  "status": "initializing" // Only for PaddleOCR when still initializing
+}
+```
+
+### OCR Engines
+
+#### Tesseract
+
+- **Default engine**: Fast and reliable
+- **Language**: English
+- **Confidence**: Word-level confidence scores
+- **Status**: Always ready
+
+#### PaddleOCR
+
+- **Advanced engine**: Better accuracy for complex layouts
+- **Language**: English
+- **Confidence**: Word-level confidence scores
+- **Status**: Initializes on service startup (may take time on first run)
 
 ## Services
 
@@ -113,6 +169,8 @@ docker-compose down -v
 1. **Port conflicts**: Make sure ports 8000, 5432, and 6379 are available
 2. **Permission issues**: The application runs as a non-root user inside the container
 3. **Database connection**: Ensure the database service is running before starting the web service
+4. **PaddleOCR initialization**: First startup may take time as models are downloaded
+5. **Memory issues**: Ensure Docker has sufficient memory (4GB+ recommended for PaddleOCR)
 
 ## Project Structure
 
@@ -125,14 +183,35 @@ img_medreport_scanner/
 ├── .dockerignore             # Files to exclude from Docker build
 ├── manage.py                 # Django management script
 ├── img_medreport_scanner/    # Django project settings
-│   ├── __init__.py
+│   ├── __init__.py           # App initialization (OCR engine setup)
 │   ├── settings.py           # Django settings
 │   ├── urls.py              # URL configuration
 │   ├── wsgi.py              # WSGI configuration
 │   ├── asgi.py              # ASGI configuration
-│   └── celery.py            # Celery configuration
+│   ├── celery.py            # Celery configuration
+│   ├── views.py             # OCR API views
+│   ├── serializers.py       # OCR request/response serializers
+│   └── ocr_engines.py       # OCR engine implementations
 └── README.md                # This file
 ```
+
+## Dependencies
+
+### Core Dependencies
+
+- Django 5.2.3
+- Django REST Framework
+- Pillow (image processing)
+- pytesseract (Tesseract OCR)
+- paddleocr (PaddleOCR engine)
+- numpy (numerical operations)
+
+### Infrastructure
+
+- PostgreSQL 15
+- Redis 7
+- Celery 5.3.0
+- Gunicorn (production server)
 
 ## Contributing
 
