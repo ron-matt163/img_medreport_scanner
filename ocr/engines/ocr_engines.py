@@ -116,4 +116,4 @@ def perform_ocr(img: Any, model_name: str) -> Tuple[str, float]:
     elif model_name == 'PaddleOCR':
         return ocr_paddleocr(img)
     else:
-        raise ValueError(f"Unknown OCR model: {model_name}")
+        raise ValueError(f"Unknown OCR model: {model_name}") 

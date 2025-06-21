@@ -7,7 +7,7 @@
 
 # Initialize OCR engines during Django startup
 try:
-    from . import ocr_engines
+    from ocr.engines import ocr_engines
     # Initialize PaddleOCR during service startup
     ocr_engines.initialize_paddle_ocr()
 except ImportError as e:

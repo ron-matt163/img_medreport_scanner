@@ -8,8 +8,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from PIL import Image
 
-from .serializers import OCRImageSerializer
-from .ocr_engines import perform_ocr
+from ocr.serializers import OCRImageSerializer
+from ocr.engines.ocr_engines import perform_ocr
 
 class OCRView(APIView):
     """API view for OCR processing of medical report images."""
@@ -46,4 +46,4 @@ class OCRView(APIView):
             
             return Response({'text': text, 'average_confidence': average_conf})
         
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
