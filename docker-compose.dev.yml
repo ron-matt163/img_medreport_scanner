@@ -15,8 +15,14 @@ services:
       - db
       - redis
     restart: unless-stopped
-    mem_limit: 4g
-    mem_reservation: 2g
+    mem_limit: 6g
+    mem_reservation: 3g
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+        reservations:
+          memory: 3G
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/"]
       interval: 30s
@@ -41,6 +47,24 @@ services:
     ports:
       - "6379:6379"
     restart: unless-stopped
+
+  celery:
+    build: .
+    command: celery -A img_medreport_scanner worker -l info
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=1
+      - DJANGO_SETTINGS_MODULE=img_medreport_scanner.settings
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/medreport_scanner
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_WORKER_RUNNING=1
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+    mem_limit: 4g
+    mem_reservation: 2g
 
 volumes:
   postgres_data:

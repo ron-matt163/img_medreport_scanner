@@ -1,1 +1,1 @@
-# OCR app for medical report scanning 
+# OCR app for medical report scanning

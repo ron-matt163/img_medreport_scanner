@@ -12,3 +12,4 @@ djangorestframework
 pytesseract
 paddleocr
 paddlepaddle
+psutil>=5.9.0

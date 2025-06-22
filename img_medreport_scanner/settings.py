@@ -22,12 +22,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', "django-insecure-zjztdwz4ay)^iyl4^ci7c9!91aq8zhg)eecid&0eixa)$t6^4b")
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY", "django-insecure-zjztdwz4ay)^iyl4^ci7c9!91aq8zhg)eecid&0eixa)$t6^4b"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
+DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0').split(',')
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1,0.0.0.0").split(
+    ","
+)
 
 
 # Application definition
@@ -77,19 +81,19 @@ WSGI_APPLICATION = "img_medreport_scanner.wsgi.application"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # Use PostgreSQL in production/Docker, SQLite for development
-DATABASE_URL = os.environ.get('DATABASE_URL')
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
 if DATABASE_URL:
     # Parse database URL for PostgreSQL
     db_info = urlparse(DATABASE_URL)
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': db_info.path[1:],
-            'USER': db_info.username,
-            'PASSWORD': db_info.password,
-            'HOST': db_info.hostname,
-            'PORT': db_info.port or '5432',
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": db_info.path[1:],
+            "USER": db_info.username,
+            "PASSWORD": db_info.password,
+            "HOST": db_info.hostname,
+            "PORT": db_info.port or "5432",
         }
     }
 else:
@@ -136,11 +140,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -148,22 +152,22 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Redis configuration for caching and Celery
-REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 
 # Cache configuration
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': REDIS_URL,
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": REDIS_URL,
     }
 }
 
 # Celery configuration
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
 
 # Request timeout settings for long-running operations
@@ -171,23 +175,30 @@ REQUEST_TIMEOUT = 300  # 5 minutes
 DATA_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024  # 50MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024  # 50MB
 
+# OCR Configuration
+OCR_CONFIG = {
+    "PADDLEOCR_MAX_IMAGE_SIZE": 1024,  # Maximum dimension for PaddleOCR preprocessing
+    "PADDLEOCR_TIMEOUT": 300,  # Timeout in seconds for PaddleOCR processing
+    "TESSERACT_TIMEOUT": 60,  # Timeout in seconds for Tesseract processing
+}
+
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
     },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False,
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
         },
     },
 }
