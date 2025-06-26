@@ -19,7 +19,13 @@ RUN apt-get update \
         libgl1-mesa-glx \
         libglib2.0-0 \
         tesseract-ocr \
+        ccache \
     && rm -rf /var/lib/apt/lists/*
+
+# Configure ccache for PaddleOCR optimization
+ENV CCACHE_DIR=/home/appuser/.ccache
+ENV CCACHE_MAXSIZE=2G
+ENV PATH="/usr/lib/ccache:${PATH}"
 
 # Install Python dependencies
 COPY requirements.txt .
@@ -30,6 +36,11 @@ COPY . .
 
 # Create a non-root user
 RUN adduser --disabled-password --gecos '' appuser
+
+# Create PaddleOCR directory and set permissions
+RUN mkdir -p /home/appuser/.paddlex && \
+    chown -R appuser:appuser /home/appuser/.paddlex
+
 RUN chown -R appuser:appuser /app
 USER appuser
 

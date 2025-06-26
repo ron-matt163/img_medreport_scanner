@@ -29,16 +29,17 @@ def is_paddle_ocr_ready():
     return engine.is_ready()
 
 
-def perform_ocr(img: Any, model_name: str) -> Tuple[str, float]:
+def perform_ocr(img: Any, model_name: str):
     """
     Perform OCR on an image using the specified engine.
 
     Args:
         img: Image to process (PIL Image or numpy array)
-        model_name: Name of the OCR engine ('Tesseract' or 'PaddleOCR')
+        model_name: Name of the OCR engine ('Tesseract', 'PaddleOCR', or 'PaddleTable')
 
     Returns:
-        Tuple of (extracted_text, average_confidence)
+        Tuple of (extracted_text, average_confidence, tables)
+        - tables: list of HTML strings if available, else None
 
     Raises:
         ValueError: If unknown engine is specified

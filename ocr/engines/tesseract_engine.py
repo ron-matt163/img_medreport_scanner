@@ -65,8 +65,8 @@ class TesseractEngine(BaseOCREngine):
 
         return resized_img
 
-    def extract_text(self, img: Any) -> Tuple[str, float]:
-        """Extract text using Tesseract OCR"""
+    def extract_text(self, img: Any):
+        """Extract text using Tesseract OCR. Returns (text, average_conf, tables=None) for interface compatibility."""
         if not self.is_ready()[0]:
             raise RuntimeError("Tesseract not ready")
 
@@ -94,4 +94,4 @@ class TesseractEngine(BaseOCREngine):
         logging.info("Tesseract extracted text: '%s'", text)
         logging.info("Tesseract average confidence: %s", str(average_conf))
 
-        return text, average_conf
+        return text, average_conf, None

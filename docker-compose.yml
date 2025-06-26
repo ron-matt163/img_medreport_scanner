@@ -1,4 +1,25 @@
 services:
+  model-downloader:
+    build: .
+    command: >
+      sh -c "python -c '
+      from paddleocr import PaddleOCR, TableRecognitionPipelineV2
+      import os
+      print(\"Downloading PaddleOCR models...\")
+      ocr = PaddleOCR(use_angle_cls=True, lang=\"en\")
+      print(\"Downloading TableRecognitionPipelineV2 models...\")
+      table_pipeline = TableRecognitionPipelineV2()
+      print(\"All models downloaded successfully!\")
+      '"
+    volumes:
+      - paddle_home:/home/appuser/.paddlex
+      - ccache_volume:/home/appuser/.ccache
+    environment:
+      - CCACHE_DIR=/home/appuser/.ccache
+    user: "1000:1000"
+    profiles:
+      - model-download
+
   web:
     build: .
     command: >
@@ -9,6 +30,8 @@ services:
       - .:/app
       - static_volume:/app/staticfiles
       - media_volume:/app/media
+      - paddle_home:/home/appuser/.paddlex
+      - ccache_volume:/home/appuser/.ccache
     ports:
       - "8000:8000"
     environment:
@@ -22,6 +45,7 @@ services:
     restart: unless-stopped
     mem_limit: 6g
     mem_reservation: 3g
+    user: "1000:1000"
     deploy:
       resources:
         limits:
@@ -47,25 +71,27 @@ services:
       - "6379:6379"
     restart: unless-stopped
 
-  celery:
-    build: .
-    command: celery -A img_medreport_scanner worker -l info
-    volumes:
-      - .:/app
-    environment:
-      - DEBUG=1
-      - DJANGO_SETTINGS_MODULE=img_medreport_scanner.settings
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/medreport_scanner
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_WORKER_RUNNING=1
-    depends_on:
-      - db
-      - redis
-    restart: unless-stopped
-    mem_limit: 4g
-    mem_reservation: 2g
+  # celery:
+  #   build: .
+  #   command: celery -A img_medreport_scanner worker -l info
+  #   volumes:
+  #     - .:/app
+  #   environment:
+  #     - DEBUG=1
+  #     - DJANGO_SETTINGS_MODULE=img_medreport_scanner.settings
+  #     - DATABASE_URL=postgresql://postgres:postgres@db:5432/medreport_scanner
+  #     - REDIS_URL=redis://redis:6379/0
+  #     - CELERY_WORKER_RUNNING=1
+  #   depends_on:
+  #     - db
+  #     - redis
+  #   restart: unless-stopped
+  #   mem_limit: 4g
+  #   mem_reservation: 2g
 
 volumes:
   postgres_data:
   static_volume:
   media_volume:
+  paddle_home:
+  ccache_volume:

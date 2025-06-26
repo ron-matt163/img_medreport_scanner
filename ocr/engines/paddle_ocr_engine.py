@@ -25,9 +25,7 @@ class PaddleOCREngine(BaseOCREngine):
 
         try:
             logging.info("Initializing PaddleOCR during service startup...")
-            # Set environment variable to prevent re-downloading models
-            os.environ["PADDLE_HOME"] = "/home/appuser/.paddlex"
-
+            # Initialize PaddleOCR - it will use models from shared volume if they exist
             self.ocr = PaddleOCR(use_angle_cls=True, lang="en")
 
             self.initialized = True
@@ -161,8 +159,8 @@ class PaddleOCREngine(BaseOCREngine):
         for i, (word, conf) in enumerate(zip(words, confidences)):
             logging.info("Word %d: '%s' with confidence: %f", i + 1, word, conf)
 
-    def extract_text(self, img: Any) -> Tuple[str, float]:
-        """Extract text using PaddleOCR"""
+    def extract_text(self, img: Any):
+        """Extract text using PaddleOCR. Returns (text, average_conf, tables) where tables is a list of HTML strings or None."""
         if not self.is_ready()[0]:
             raise RuntimeError(f"PaddleOCR not ready: {self.is_ready()[1]}")
 
@@ -208,9 +206,6 @@ class PaddleOCREngine(BaseOCREngine):
             # Extract text using the recursive function
             words, confidences = self._extract_text_from_result(result)
 
-            # Log extraction results
-            # self._log_extraction_results(words, confidences)
-
             text = " ".join(words)
             average_conf = (
                 round(sum(confidences) / len(confidences), 3) if confidences else None
@@ -218,11 +213,25 @@ class PaddleOCREngine(BaseOCREngine):
             logging.info("Final extracted text: '%s'", text)
             logging.info("Average confidence: %s", str(average_conf))
 
+            # Extract table HTML if present
+            tables = []
+            # result is usually a list of dicts, each with 'table_res_list' if tables detected
+            if isinstance(result, list):
+                for res in result:
+                    res_obj = getattr(res, "res", res)
+                    table_res_list = res_obj.get("table_res_list", [])
+                    for table in table_res_list:
+                        html = table.get("pred_html")
+                        if html:
+                            tables.append(html)
+            if not tables:
+                tables = None
+
             # Force garbage collection after processing
             force_garbage_collection()
             log_memory_usage("After garbage collection")
 
-            return text, average_conf
+            return text, average_conf, tables
         except Exception as e:
             logging.error("Error in PaddleOCR processing: %s", str(e), exc_info=True)
             raise RuntimeError(f"PaddleOCR processing failed: {str(e)}")

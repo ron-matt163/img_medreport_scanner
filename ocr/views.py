@@ -13,7 +13,7 @@ from ocr.engines.ocr_engines import perform_ocr
 
 
 class OCRView(APIView):
-    """API view for OCR processing of medical report images."""
+    """API view for OCR processing of medical report images. Supports models: 'Tesseract', 'PaddleOCR', and 'PaddleTable' (for table extraction)."""
 
     def post(self, request):
         """Process OCR request for image text extraction."""
@@ -26,9 +26,11 @@ class OCRView(APIView):
             start_time = time.time()
 
             try:
-                text, average_conf = perform_ocr(img, model)
+                text, average_conf, tables = perform_ocr(img, model)
             except RuntimeError as e:
-                if "PaddleOCR not ready" in str(e):
+                if "PaddleOCR not ready" in str(
+                    e
+                ) or "PaddleTableOCREngine not ready" in str(e):
                     return Response(
                         {"error": str(e), "status": "initializing"},
                         status=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -50,6 +52,10 @@ class OCRView(APIView):
             logging.info("OCR parsing latency: %.3f seconds", latency)
             logging.info("Average confidence: %.2f", average_conf)
 
-            return Response({"text": text, "average_confidence": average_conf})
+            response_data = {"text": text, "average_confidence": average_conf}
+            if tables:
+                response_data["tables"] = tables
+
+            return Response(response_data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

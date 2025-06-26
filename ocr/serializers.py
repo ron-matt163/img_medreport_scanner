@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-allowed_models = {"Tesseract", "PaddleOCR"}
+allowed_models = {"Tesseract", "PaddleOCR", "PaddleTable"}
 
 
 class OCRImageSerializer(serializers.Serializer):

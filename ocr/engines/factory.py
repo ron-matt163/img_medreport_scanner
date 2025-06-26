@@ -2,6 +2,7 @@ from typing import Dict, Type
 from .base import BaseOCREngine
 from .tesseract_engine import TesseractEngine
 from .paddle_ocr_engine import PaddleOCREngine
+from .paddle_table_ocr_engine import PaddleTableOCREngine
 
 
 class OCREngineFactory:
@@ -24,6 +25,8 @@ class OCREngineFactory:
             engine = TesseractEngine()
         elif engine_name.lower() == "paddleocr":
             engine = PaddleOCREngine()
+        elif engine_name.lower() == "paddletable":
+            engine = PaddleTableOCREngine()
         else:
             raise ValueError(f"Unknown OCR engine: {engine_name}")
 
@@ -36,8 +39,9 @@ class OCREngineFactory:
         """Initialize all supported engines"""
         cls.get_engine("Tesseract")
         cls.get_engine("PaddleOCR")
+        cls.get_engine("PaddleTable")
 
     @classmethod
     def get_available_engines(cls) -> list:
         """Get list of available engine names"""
-        return ["Tesseract", "PaddleOCR"]
+        return ["Tesseract", "PaddleOCR", "PaddleTable"]

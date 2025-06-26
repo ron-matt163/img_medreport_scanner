@@ -1,3 +1,9 @@
+"""
+Base OCR Engine Module
+
+This module defines the abstract base class for OCR engines.
+"""
+
 from abc import ABC, abstractmethod
 from typing import Tuple, Any
 from PIL import Image
@@ -17,8 +23,8 @@ class BaseOCREngine(ABC):
         pass
 
     @abstractmethod
-    def extract_text(self, img: Any) -> Tuple[str, float]:
-        """Extract text from image and return (text, confidence)"""
+    def extract_text(self, img: Any):
+        """Extract text from image and return (text, confidence, tables) if available. For table engines, text is the full OCR text, and tables is a list of HTML tables if present."""
         pass
 
     @abstractmethod
